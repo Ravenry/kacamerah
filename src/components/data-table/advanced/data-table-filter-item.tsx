@@ -110,22 +110,22 @@ export function DataTableFilterItem<TData>({
           <span className="font-medium capitalize">{selectedOption.label}</span>
           {selectedOption.options.length > 0
             ? selectedValues.size > 0 && (
-                <span className="text-muted-foreground">
-                  <span className="text-foreground">: </span>
-                  {selectedValues.size > 2
-                    ? `${selectedValues.size} selected`
-                    : selectedOption.options
-                        .filter((item) => selectedValues.has(item.value))
-                        .map((item) => item.label)
-                        .join(", ")}
-                </span>
-              )
+              <span className="text-muted-foreground">
+                <span className="text-foreground">: </span>
+                {selectedValues.size > 2
+                  ? `${selectedValues.size} selected`
+                  : selectedOption.options
+                    .filter((item) => selectedValues.has(item.value))
+                    .map((item) => item.label)
+                    .join(", ")}
+              </span>
+            )
             : value.length > 0 && (
-                <span className="text-muted-foreground">
-                  <span className="text-foreground">: </span>
-                  {value}
-                </span>
-              )}
+              <span className="text-muted-foreground">
+                <span className="text-foreground">: </span>
+                {value}
+              </span>
+            )}
         </Button>
       </PopoverTrigger>
       <PopoverContent

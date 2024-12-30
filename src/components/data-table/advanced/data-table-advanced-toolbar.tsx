@@ -211,7 +211,7 @@ export function DataTableAdvancedToolbar<TData>({
         <div className="flex items-center gap-2">
           {children}
           {(options.length > 0 && selectedOptions.length > 0) ||
-          openFilterBuilder ? (
+            openFilterBuilder ? (
             <Button
               variant="outline"
               size="sm"

@@ -66,3 +66,14 @@ export function getIsMacOS() {
   if (typeof navigator === "undefined") return false
   return navigator.userAgent?.includes("Mac")
 }
+
+export function formatCurrency(amount?: number, currency?: string) {
+  if (amount == null || !currency) return '-';
+  
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}

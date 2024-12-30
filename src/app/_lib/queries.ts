@@ -12,88 +12,41 @@ import { type GetTasksSchema } from "./validations"
 
 export async function getTasks(input: GetTasksSchema) {
   noStore()
-  const { page, per_page, sort, title, status, priority, operator, from, to } =
-    input
+  const { page, per_page } = input
 
   try {
-    // Offset to paginate the results
-    const offset = (page - 1) * per_page
-    // Column and order to sort by
-    // Spliting the sort string by "." to get the column and order
-    // Example: "title.desc" => ["title", "desc"]
-    const [column, order] = (sort?.split(".").filter(Boolean) ?? [
-      "createdAt",
-      "desc",
-    ]) as [keyof Task | undefined, "asc" | "desc" | undefined]
-
-    // Convert the date strings to date objects
-    const fromDay = from ? sql`to_date(${from}, 'yyyy-mm-dd')` : undefined
-    const toDay = to ? sql`to_date(${to}, 'yyyy-mm-dd')` : undefined
-
-    const expressions: (SQL<unknown> | undefined)[] = [
-      title
-        ? filterColumn({
-            column: tasks.title,
-            value: title,
-          })
-        : undefined,
-      // Filter tasks by status
-      !!status
-        ? filterColumn({
-            column: tasks.status,
-            value: status,
-            isSelectable: true,
-          })
-        : undefined,
-      // Filter tasks by priority
-      !!priority
-        ? filterColumn({
-            column: tasks.priority,
-            value: priority,
-            isSelectable: true,
-          })
-        : undefined,
-      // Filter by createdAt
-      fromDay && toDay
-        ? and(gte(tasks.createdAt, fromDay), lte(tasks.createdAt, toDay))
-        : undefined,
-    ]
-    const where: DrizzleWhere<Task> =
-      !operator || operator === "and" ? and(...expressions) : or(...expressions)
-
-    // Transaction is used to ensure both queries are executed in a single transaction
-    const { data, total } = await db.transaction(async (tx) => {
-      const data = await tx
-        .select()
-        .from(tasks)
-        .limit(per_page)
-        .offset(offset)
-        .where(where)
-        .orderBy(
-          column && column in tasks
-            ? order === "asc"
-              ? asc(tasks[column])
-              : desc(tasks[column])
-            : desc(tasks.id)
-        )
-
-      const total = await tx
-        .select({
-          count: count(),
-        })
-        .from(tasks)
-        .where(where)
-        .execute()
-        .then((res) => res[0]?.count ?? 0)
-
-      return {
-        data,
-        total,
-      }
+    // Generate random mock data
+    const generateRandomTask = (): Task => ({
+      id: crypto.randomUUID(),
+      code: `TASK-${Math.floor(Math.random() * 1000)}`,
+      title: `Random Task ${Math.floor(Math.random() * 100)}`,
+      status: ['todo', 'in-progress', 'done', 'canceled'][Math.floor(Math.random() * 4)] as Task['status'],
+      label: ['bug', 'feature', 'enhancement', 'documentation'][Math.floor(Math.random() * 4)] as Task['label'],
+      priority: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as Task['priority'],
+      assignee: ['John Doe', 'Jane Smith', 'Bob Johnson', 'Alice Brown'][Math.floor(Math.random() * 4)],
+      dueDate: new Date(Date.now() + Math.floor(Math.random() * 7776000000)),
+      estimatedHours: `${Math.floor(Math.random() * 40 + 1)}h`,
+      department: ['Engineering', 'Design', 'Marketing', 'Sales'][Math.floor(Math.random() * 4)],
+      tags: Array.from(
+        { length: Math.floor(Math.random() * 3 + 1) },
+        () => ['urgent', 'blocked', 'review', 'frontend', 'backend'][Math.floor(Math.random() * 5)]
+      ),
+      createdAt: new Date(Date.now() - Math.floor(Math.random() * 10000000000)),
+      updatedAt: new Date()
     })
 
-    const pageCount = Math.ceil(total / per_page)
-    return { data, pageCount }
+    // Generate array of random tasks
+    const mockTasks = Array.from({ length: 100 }, generateRandomTask)
+    
+    // Apply pagination
+    const offset = (page - 1) * per_page
+    const paginatedData = mockTasks.slice(offset, offset + per_page)
+    const pageCount = Math.ceil(mockTasks.length / per_page)
+
+    return { 
+      data: paginatedData, 
+      pageCount 
+    }
   } catch (err) {
     return { data: [], pageCount: 0 }
   }
@@ -133,13 +86,44 @@ export async function getTaskCountByPriority() {
 
 export async function getViews() {
   noStore()
-  return await db
-    .select({
-      id: views.id,
-      name: views.name,
-      columns: views.columns,
-      filterParams: views.filterParams,
-    })
-    .from(views)
-    .orderBy(desc(views.createdAt))
+  
+  // Mock views data
+  const mockViews: any[] = [
+    {
+      id: crypto.randomUUID(),
+      name: "All Tasks",
+      columns: ["code", "title", "status", "priority", "createdAt"],
+      filterParams: {
+        status: [],
+        priority: [],
+        operator: "and"
+      },
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: crypto.randomUUID(),
+      name: "High Priority",
+      columns: ["code", "title", "status", "label"],
+      filterParams: {
+        priority: ["high"],
+        operator: "and"
+      },
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: crypto.randomUUID(),
+      name: "Bugs",
+      columns: ["code", "title", "priority", "status"],
+      filterParams: {
+        label: ["bug"],
+        operator: "and"
+      },
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+  ]
+
+  return mockViews
 }

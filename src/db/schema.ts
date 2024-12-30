@@ -1,68 +1,62 @@
-import { pgTable } from "@/db/utils"
 import { sql } from "drizzle-orm"
-import {
-  json,
-  pgEnum,
-  text,
-  timestamp,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core"
+import { text, timestamp, pgTable, pgEnum } from "drizzle-orm/pg-core"
 
-import { databasePrefix } from "@/lib/constants"
-import type { FilterParams } from "@/app/_lib/validations"
-
-export const statusEnum = pgEnum(`${databasePrefix}_status`, [
+// Enums
+export const taskStatus = pgEnum("task_status", [
   "todo",
   "in-progress",
   "done",
   "canceled",
 ])
 
-export const labelEnum = pgEnum(`${databasePrefix}_label`, [
+export const taskLabel = pgEnum("task_label", [
   "bug",
   "feature",
   "enhancement",
   "documentation",
 ])
 
-export const priorityEnum = pgEnum(`${databasePrefix}_priority`, [
-  "low",
-  "medium",
-  "high",
-])
+export const taskPriority = pgEnum("task_priority", ["low", "medium", "high"])
 
+export const userRole = pgEnum("user_role", ["admin", "user", "guest"])
+export const userStatus = pgEnum("user_status", ["active", "inactive", "pending"])
+
+// Tables
 export const tasks = pgTable("tasks", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`uuid_generate_v4()`)
-    .notNull(),
-  code: varchar("code", { length: 256 }).notNull().unique(),
-  title: varchar("title", { length: 256 }),
-  status: statusEnum("status").notNull().default("todo"),
-  label: labelEnum("label").notNull().default("bug"),
-  priority: priorityEnum("priority").notNull().default("low"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .default(sql`current_timestamp`)
-    .$onUpdate(() => new Date()),
+  id: text("id").primaryKey(),
+  code: text("code").notNull(),
+  title: text("title"),
+  status: taskStatus("status").notNull(),
+  label: taskLabel("label").notNull(),
+  priority: taskPriority("priority").notNull(),
+  assignee: text("assignee"),
+  dueDate: timestamp("due_date").notNull(),
+  estimatedHours: text("estimated_hours").notNull(),
+  department: text("department"),
+  tags: text("tags").array().notNull(),
+  createdAt: timestamp("created_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at"),
 })
 
+export const users = pgTable("users", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  name: text("name").notNull(),
+  role: userRole("role").notNull().default("user"),
+  status: userStatus("status").notNull().default("pending"),
+  department: text("department"),
+  lastLoginAt: timestamp("last_login_at"),
+  createdAt: timestamp("created_at")
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp("updated_at"),
+})
+
+// Types
 export type Task = typeof tasks.$inferSelect
 export type NewTask = typeof tasks.$inferInsert
 
-export const views = pgTable("views", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`uuid_generate_v4()`)
-    .notNull(),
-  name: text("name").notNull().unique(),
-  columns: text("columns").array(),
-  filterParams: json("filter_params").$type<FilterParams>(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .default(sql`current_timestamp`)
-    .$onUpdate(() => new Date()),
-})
-
-export type View = typeof views.$inferSelect
+export type User = typeof users.$inferSelect
+export type NewUser = typeof users.$inferInsert

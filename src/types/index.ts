@@ -13,9 +13,13 @@ export interface Option {
 
 export interface DataTableFilterField<TData> {
   label: string
-  value: keyof TData
+  value: string
   placeholder?: string
-  options?: Option[]
+  options?: {
+    label: string
+    value: string
+    withCount?: boolean
+  }[]
 }
 
 export interface DataTableFilterOption<TData> {
@@ -32,3 +36,18 @@ export type DrizzleWhere<T> =
   | SQL<unknown>
   | ((aliases: T) => SQL<T> | undefined)
   | undefined
+
+export interface View {
+  id: string
+  name: string
+  filterParams?: {
+    operator?: "and" | "or"
+    sort?: string
+    filters?: {
+      id: string
+      field: string
+      value: string[]
+      operator: "equals" | "contains" | "startsWith" | "endsWith"
+    }[]
+  }
+}

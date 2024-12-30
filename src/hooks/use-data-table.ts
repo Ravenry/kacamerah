@@ -16,6 +16,8 @@ import {
   type PaginationState,
   type SortingState,
   type VisibilityState,
+  type ColumnPinningState,
+  type Updater,
 } from "@tanstack/react-table"
 import { z } from "zod"
 
@@ -159,6 +161,7 @@ export function useDataTable<TData, TValue>({
     React.useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] =
     React.useState<ColumnFiltersState>(initialColumnFilters)
+  const [columnPinning, setColumnPinning] = React.useState<ColumnPinningState>({})
 
   // Handle server-side pagination
   const [{ pageIndex, pageSize }, setPagination] =
@@ -292,6 +295,27 @@ export function useDataTable<TData, TValue>({
     JSON.stringify(filterableColumnFilters),
   ])
 
+  // Handle column pinning changes
+  const handleColumnPinningChange = React.useCallback((updater: Updater<ColumnPinningState>) => {
+    const newState = typeof updater === 'function' ? updater(columnPinning) : updater
+    
+    // Check if there are any pinned columns other than 'select'
+    const hasOtherPinnedColumns = 
+      (newState.left?.filter(id => id !== 'select')?.length || 0) > 0 || 
+      (newState.right?.length || 0) > 0
+
+    // If there are other pinned columns and 'select' isn't pinned, add it
+    if (hasOtherPinnedColumns && !newState.left?.includes('select')) {
+      newState.left = ['select', ...(newState.left || [])]
+    }
+    // If there are no other pinned columns, remove 'select'
+    else if (!hasOtherPinnedColumns && newState.left?.includes('select')) {
+      newState.left = newState.left.filter(id => id !== 'select')
+    }
+
+    setColumnPinning(newState)
+  }, [columnPinning])
+
   const table = useReactTable({
     data,
     columns,
@@ -302,13 +326,17 @@ export function useDataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
       columnFilters,
+      columnPinning,
     },
+    enableColumnPinning: true,
+    enableRowPinning: false,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onColumnPinningChange: handleColumnPinningChange,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

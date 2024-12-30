@@ -14,11 +14,16 @@ import { TableInstanceProvider } from "../../components/data-table/table-instanc
 import { getColumns } from "./tasks-table-columns"
 import { TasksTableFloatingBar } from "./tasks-table-floating-bar"
 import { TasksTableToolbarActions } from "./tasks-table-toolbar-actions"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { flexRender, type Column } from "@tanstack/react-table"
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 
 interface TasksTableProps {
   tasksPromise: ReturnType<typeof getTasks>
   viewsPromise: ReturnType<typeof getViews>
 }
+
 
 export function TasksTable({ tasksPromise, viewsPromise }: TasksTableProps) {
   const { data, pageCount } = React.use(tasksPromise)

@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import type { View } from "@/db/schema"
 import { CaretDownIcon, Pencil1Icon, PlusIcon } from "@radix-ui/react-icons"
 import { useHotkeys } from "react-hotkeys-hook"
 
@@ -33,16 +32,28 @@ import { CreateViewForm } from "./create-view-form"
 import { EditViewForm } from "./edit-view-form"
 import { calcViewSearchParamsURL } from "./utils"
 
-export type ViewItem = Omit<View, "createdAt" | "updatedAt">
+export interface ViewItem {
+  id: string
+  name: string
+  columns: string[]
+  filterParams: {
+    status?: string[]
+    priority?: string[]
+    operator: string
+    label?: string[]
+  }
+}
 
 interface DataTableViewsDropdownProps {
   views: ViewItem[]
   filterParams: FilterParams
+  defaultViewName?: string
 }
 
 export function DataTableViewsDropdown({
   views,
   filterParams,
+  defaultViewName = "All items"
 }: DataTableViewsDropdownProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -88,7 +99,7 @@ export function DataTableViewsDropdown({
                 className="flex w-36 shrink-0 justify-between"
               >
                 <span className="truncate">
-                  {currentView?.name || "All tasks"}
+                  {currentView?.name || defaultViewName}
                 </span>
                 <CaretDownIcon aria-hidden="true" className="size-4 shrink-0" />
               </Button>
@@ -135,13 +146,13 @@ export function DataTableViewsDropdown({
               <CommandEmpty>No item found.</CommandEmpty>
               <CommandGroup className="max-h-48 overflow-auto">
                 <CommandItem
-                  value="All tasks"
+                  value={defaultViewName}
                   onSelect={() => {
                     router.push(pathname, { scroll: false })
                     setOpen(false)
                   }}
                 >
-                  All tasks
+                  {defaultViewName}
                 </CommandItem>
                 {views.map((view) => (
                   <CommandItem

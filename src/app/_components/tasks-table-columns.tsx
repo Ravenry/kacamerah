@@ -35,15 +35,17 @@ export function getColumns(): ColumnDef<Task>[] {
   return [
     {
       id: "select",
+      enableHiding: false,
+      enableSorting: false,
+      enableResizing: false,
+      enablePinning: false,
+      size: 40,
+      maxSize: 40,
       header: ({ table }) => (
         <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
+          checked={table.getIsAllPageRowsSelected()}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
-          className="translate-y-0.5"
         />
       ),
       cell: ({ row }) => (
@@ -51,11 +53,8 @@ export function getColumns(): ColumnDef<Task>[] {
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
-          className="translate-y-0.5"
         />
       ),
-      enableSorting: false,
-      enableHiding: false,
     },
     {
       accessorKey: "code",
@@ -65,6 +64,7 @@ export function getColumns(): ColumnDef<Task>[] {
       cell: ({ row }) => <div className="w-20">{row.getValue("code")}</div>,
       enableSorting: false,
       enableHiding: false,
+      enablePinning: true,
     },
     {
       accessorKey: "title",
@@ -85,6 +85,7 @@ export function getColumns(): ColumnDef<Task>[] {
           </div>
         )
       },
+      enablePinning: true,
     },
     {
       accessorKey: "status",
@@ -113,6 +114,7 @@ export function getColumns(): ColumnDef<Task>[] {
       filterFn: (row, id, value) => {
         return Array.isArray(value) && value.includes(row.getValue(id))
       },
+      enablePinning: true,
     },
     {
       accessorKey: "priority",
@@ -141,6 +143,58 @@ export function getColumns(): ColumnDef<Task>[] {
       filterFn: (row, id, value) => {
         return Array.isArray(value) && value.includes(row.getValue(id))
       },
+      enablePinning: true,
+    },
+    {
+      accessorKey: "assignee",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Assignee" />
+      ),
+      cell: ({ row }) => row.getValue("assignee"),
+      enablePinning: true,
+    },
+    {
+      accessorKey: "dueDate",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Due Date" />
+      ),
+      cell: ({ row }) => formatDate(row.getValue("dueDate")),
+      enablePinning: true,
+    },
+    {
+      accessorKey: "estimatedHours",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Est. Hours" />
+      ),
+      cell: ({ row }) => row.getValue("estimatedHours"),
+      enablePinning: true,
+    },
+    {
+      accessorKey: "department",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Department" />
+      ),
+      cell: ({ row }) => row.getValue("department"),
+      enablePinning: true,
+    },
+    {
+      accessorKey: "tags",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Tags" />
+      ),
+      cell: ({ row }) => {
+        const tags = row.getValue("tags") as string[]
+        return (
+          <div className="flex gap-1">
+            {tags?.map((tag) => (
+              <Badge key={tag} variant="secondary">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )
+      },
+      enablePinning: true,
     },
     {
       accessorKey: "createdAt",
@@ -148,6 +202,7 @@ export function getColumns(): ColumnDef<Task>[] {
         <DataTableColumnHeader column={column} title="Created At" />
       ),
       cell: ({ cell }) => formatDate(cell.getValue() as Date),
+      enablePinning: true,
     },
     {
       id: "actions",
@@ -235,6 +290,7 @@ export function getColumns(): ColumnDef<Task>[] {
           </>
         )
       },
+      enablePinning: false,
     },
   ]
 }

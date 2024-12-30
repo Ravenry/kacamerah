@@ -3,7 +3,7 @@ import { env } from "@/env"
 export type SiteConfig = typeof siteConfig
 
 export const siteConfig = {
-  name: "Shadcn View Table",
+  name: "Ravenry",
   description:
     "Shadcn table component with server side sorting, pagination, filtering, and custom views.",
   url:
