@@ -19,7 +19,7 @@ interface TasksResponse {
 
 function getBaseUrl() {
     const headersList = headers()
-    const host = headersList.get("host") || "localhost:3000"
+    const host = headersList.get("host") || "https://kacamerah.vercel.app/"
     const protocol = host.includes("localhost") ? "http" : "https"
     return `${protocol}://${host}`
 }

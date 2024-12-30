@@ -3,7 +3,7 @@ import { type Client } from "@/app/(entities)/clients/components/clients-table-c
 import { type Freelancer } from "@/app/(entities)/freelancers/components/freelancers-table-columns"
 import type { SearchParams } from "./validations"
 
-const BASE_URL = 'http://localhost:3000'
+const BASE_URL = 'https://kacamerah.vercel.app/'
 
 interface GetProjectsParams {
     page?: string
