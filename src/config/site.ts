@@ -6,9 +6,6 @@ export const siteConfig = {
   name: "Ravenry",
   description:
     "Shadcn table component with server side sorting, pagination, filtering, and custom views.",
-  url:
-    env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : "https://view-table.nainglinnkhant.com",
+  url: 'https://kacamerah.vercel.app/',
   links: { github: "https://github.com/nainglinnkhant/shadcn-view-table" },
 }
