@@ -10,6 +10,7 @@ import {
 import { usePathname } from 'next/navigation'
 import { Users, FolderKanban, Building2, UserCog } from 'lucide-react'
 import { LucideIcon } from 'lucide-react'
+import { ModeToggle } from "@/components/layouts/mode-toggle"
 
 interface DashboardLayoutProps {
     children: React.ReactNode
@@ -48,7 +49,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <AppSidebar />
             <SidebarInset>
                 <header className="flex h-16 shrink-0 items-center border-b">
-                    <div className="flex items-center gap-4 px-6">
+                    <div className="flex w-full items-center gap-4 px-6">
                         <SidebarTrigger className="-ml-2" />
                         <Separator orientation="vertical" className="h-6" />
                         {section && (
@@ -57,6 +58,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                                 <h1 className="text-lg font-semibold">{section.title}</h1>
                             </div>
                         )}
+                        <div className="ml-auto">
+                            <ModeToggle />
+                        </div>
                     </div>
                 </header>
 
